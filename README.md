@@ -2,12 +2,28 @@
 
 A JARVIS-like AI Assistant with voice input/output and sub-agent orchestration.
 
+## 🚀 Quick Start
+
+```bash
+# Clone and setup
+git clone https://github.com/sampreethD/Jarvis.git
+cd Jarvis
+
+# Install
+uv sync
+
+# Run web app
+uv run python -m jarvis.web
+# Open http://localhost:8000
+```
+
 ## Features
 
 - 🎙️ **Voice I/O** - Speech-to-text and text-to-speech
 - 🤖 **7 Specialized Sub-Agents** - Each handles specific tasks
 - 🔀 **Automatic Routing** - Routes tasks to the right agent
-- 📝 **Text & Voice modes** - Use whatever is convenient
+- 💬 **Web UI** - Real-time chat with WebSocket
+- 🌐 **GitHub Pages** - Static demo deployed
 
 ## Sub-Agents
 
@@ -21,55 +37,61 @@ A JARVIS-like AI Assistant with voice input/output and sub-agent orchestration.
 | `scriptwriter` | Video scripts, narration | script, youtube |
 | `video` | AI video creation | ai video, generate video |
 
-## Installation
-
-```bash
-# Navigate to project
-cd jarvis
-
-# Install dependencies
-uv sync
-
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your API key
-```
-
 ## Get API Key
 
-Get your OpenHands API key from: https://openhands.dev
+1. Get free key from: https://openhands.dev
+2. Set as environment variable:
+   ```bash
+   export LLM_API_KEY="sk-oh-..."
+   ```
+
+Or create `.env` file:
+```
+LLM_API_KEY=your-api-key
+LLM_MODEL=openai/gpt-4o
+```
 
 ## Usage
 
+### Web UI
 ```bash
-# Run in text mode
-uv run python -m jarvis.main
+uv run python -m jarvis.web
+# Open http://localhost:8000
+```
 
-# Or set API key and run
-export LLM_API_KEY="your-key"
+### Voice Mode (requires microphone)
+```bash
 uv run python -m jarvis.main
 ```
 
-## Voice Mode
-
+### Python API
 ```python
 from jarvis import JARVIS
 
 jarvis = JARVIS(api_key="your-key")
-jarvis.run_voice_loop()  # Requires microphone
+response = await jarvis.process("Hello!")
+print(response)
 ```
 
-## Example Session
+## GitHub Pages Deployment
 
-```
-JARVIS is ready. Type 'exit' to quit.
+1. Merge PR to master
+2. Go to Settings → Pages
+3. Source: Deploy from a branch
+4. Branch: `master`, folder: `/docs`
+5. Add `LLM_API_KEY` secret in Actions settings
 
-You: What's the best way to invest in crypto?
-JARVIS: For crypto investment, I recommend starting with...
+Your URL: `https://sampreethD.github.io/Jarvis/`
 
-You: Help me write a youtube video script
-JARVIS: I'd be happy to help with your YouTube script. What's the topic?
+## Tech Stack
 
-You: Write code to read a CSV file
-JARVIS: Here's a simple Python solution...
-```
+- **OpenHands SDK** - AI agent framework
+- **FastAPI** - Web server
+- **WebSocket** - Real-time chat
+- **gTTS** - Text-to-speech
+- **SpeechRecognition** - Voice input
+- **uv** - Package manager
+
+## License
+
+MIT
