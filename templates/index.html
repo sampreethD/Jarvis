@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --jarvis-blue: #00a8ff;
+            --jarvis-glow: #00d4ff;
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --text-primary: #e8e8e8;
+            --text-secondary: #8888aa;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(90deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+            border-bottom: 1px solid rgba(0, 168, 255, 0.2);
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--jarvis-blue), var(--jarvis-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 168, 255, 0.5);
+        }
+        
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 168, 255, 0.1) 0%, transparent 70%);
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        
+        .hero h1 span {
+            color: var(--jarvis-blue);
+            font-weight: 700;
+        }
+        
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .chat-messages {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 60vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.user {
+            background: linear-gradient(135deg, var(--jarvis-blue), #0066cc);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.bot {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.error {
+            background: rgba(255, 50, 50, 0.2);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            color: #ff6666;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chat-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 0 15px;
+            outline: none;
+        }
+        
+        .chat-input input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .chat-input button {
+            background: var(--jarvis-blue);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background: var(--jarvis-glow);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 15px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--jarvis-blue);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .agent-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 40px 0;
+        }
+        
+        .agent-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .agent-card:hover {
+            border-color: var(--jarvis-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 168, 255, 0.15);
+        }
+        
+        .agent-card i {
+            font-size: 2rem;
+            color: var(--jarvis-blue);
+            margin-bottom: 15px;
+        }
+        
+        .agent-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .agent-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 168, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--jarvis-blue);
+        }
+        
+        .status-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--jarvis-blue);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-robot"></i> JARVIS
+            </a>
+            <div class="ms-auto">
+                <span class="status-indicator">Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container">
+            <h1>Talk to <span>JARVIS</span></h1>
+            <p>Your AI assistant with voice capabilities and specialized sub-agents for investment, lifestyle, software, marketing, and video creation.</p>
+            <a href="#chat" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-chat-dots"></i> Start Chatting
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Your <span style="color: var(--jarvis-blue)">Sub-Agents</span></h2>
+        <div class="agent-cards">
+            <div class="agent-card">
+                <i class="bi bi-person-circle"></i>
+                <h3>Assistant</h3>
+                <p>General queries, reminders, and simple tasks</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-graph-up-arrow"></i>
+                <h3>Investment</h3>
+                <p>Stocks, crypto, and portfolio management</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-heart-pulse"></i>
+                <h3>Lifestyle</h3>
+                <p>Health, fitness, and wellness</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-code-slash"></i>
+                <h3>Software</h3>
+                <p>Coding and development</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-megaphone"></i>
+                <h3>Marketing</h3>
+                <p>Strategies and campaigns</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-camera-video"></i>
+                <h3>Script Writer</h3>
+                <p>Video and YouTube scripts</p>
+            </div>
+            <div class="agent-card">
+                <i class="bi bi-play-circle"></i>
+                <h3>AI Video</h3>
+                <p>AI video creation</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="chat">
+        <div class="chat-container">
+            <h2 class="text-center mb-4">Chat with <span style="color: var(--jarvis-blue)">JARVIS</span></h2>
+            
+            <div class="chat-messages" id="messages">
+                <div class="message bot">
+                    <i class="bi bi-robot"></i> Hello! I'm JARVIS. How can I help you today?
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
+                <button id="send-btn">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 60px;">
+        <div class="container">
+            <p class="text-secondary mb-0">
+                <i class="bi bi-robot"></i> JARVIS AI Assistant
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        
+        function connect() {
+            ws = new WebSocket(window.location.protocol === 'https:' ? 'wss:' : 'ws:' + '//' + window.location.host + '/ws');
+            
+            ws.onopen = () => {
+                console.log('Connected to JARVIS');
+                reconnectAttempts = 0;
+            };
+            
+            ws.onmessage = (event) => {
+                const data = event.data;
+                removeTyping();
+                
+                if (data.startsWith('ERROR:')) {
+                    addMessage(data, 'error');
+                } else {
+                    addMessage(data, 'bot');
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('Disconnected from JARVIS');
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    setTimeout(connect, 2000);
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+        
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            
+            if (sender === 'bot') {
+                div.innerHTML = '<i class="bi bi-robot"></i> ' + text.replace(/JARVIS:/g, '').trim();
+            } else {
+                div.textContent = text;
+            }
+            
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'message bot typing';
+            div.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typing = messagesDiv.querySelector('.typing');
+            if (typing) typing.remove();
+        }
+        
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+            
+            addMessage(text, 'user');
+            userInput.value = '';
+            showTyping();
+            ws.send(text);
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        // Connect to WebSocket
+        connect();
+    </script>
+</body>
+</html>
