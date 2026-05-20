@@ -44,7 +44,7 @@ class JARVIS:
         voice_lang: str = "en",
     ):
         # Initialize LLM
-        self.model = model or os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5-20250929")
+        self.model = model or os.getenv("LLM_MODEL", "openai/gpt-4o")
         self.api_key = api_key or os.getenv("LLM_API_KEY")
         
         if not self.api_key:

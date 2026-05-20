@@ -5,13 +5,13 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+import asyncio
 
 # Load environment variables
 load_dotenv()
 
 # Create FastAPI app
 app = FastAPI(title="JARVIS AI Assistant")
-
 
 # Read HTML from file
 def get_html():
@@ -38,28 +38,47 @@ async def websocket_endpoint(websocket: WebSocket):
         return
     
     try:
-        from jarvis import JARVIS
+        from openhands.sdk import Agent, Conversation, LLM
         
-        # Initialize JARVIS
-        jarvis = JARVIS(api_key=api_key)
+        # Initialize LLM with OpenAI model (works with this API key)
+        llm = LLM(
+            model="openai/gpt-4o",
+            api_key=api_key
+        )
+        
+        # Initialize main agent
+        agent = Agent(
+            name="JARVIS",
+            description="""JARVIS - Your AI Assistant.
+            Helpful AI that responds concisely and witely.""",
+            llm=llm,
+            instructions="""You are JARVIS, an AI assistant inspired by Tony Stark's creation.
+            Be helpful, concise, and witty. Respond directly to user queries."""
+        )
+        
+        # Create conversation
+        conv = Conversation(agent=agent, workspace=os.getcwd())
         
         # Send welcome message
-        await websocket.send_text("JARVIS: Hello! I'm ready. How can I help you today?")
+        await websocket.send_text("Hello! I'm JARVIS. How can I help you today?")
         
         while True:
             # Receive message from client
             data = await websocket.receive_text()
+            print(f"Received: {data}")
             
             # Process the message
-            response = await jarvis.process(data)
+            response = await conv.send_message(data)
+            print(f"Response: {response.content}")
             
             # Send response back to client
-            await websocket.send_text(f"JARVIS: {response}")
+            await websocket.send_text(response.content)
             
     except WebSocketDisconnect:
         pass
     except Exception as e:
-        await websocket.send_text(f"ERROR: {str(e)}")
+        import traceback
+        await websocket.send_text(f"ERROR: {str(e)}\n{traceback.format_exc()}")
         await websocket.close()
 
 
